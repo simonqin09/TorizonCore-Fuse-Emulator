@@ -1,0 +1,194 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "autoreconf_libspectrum",
+            "command": "autoreconf",
+            "type": "shell",
+            "args": [
+                "--install",
+                "--force"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/fuse-emulator-libspectrum"
+            },
+            "problemMatcher": [],
+            "group": "none"
+        },
+        {
+            "label": "configure_libspectrum",
+            "command": "./configure",
+            "type": "shell",
+            "args": [
+                "--prefix",
+                "${workspaceFolder}",
+                "--host",
+                "${command:torizon.ccpp.getHostTriplet}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/fuse-emulator-libspectrum"
+            },
+            "problemMatcher": [],
+            "group": "none",
+            "dependsOn": [
+                "autoreconf_libspectrum"
+            ]
+        },
+        {
+            "label": "build_libspectrum",
+            "command": "make",
+            "type": "shell",
+            "args": [
+                "install-strip"
+            ],
+            "problemMatcher": {
+                "base": "$gcc"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/fuse-emulator-libspectrum",
+                "env": {
+                    "CFLAGS": "-g",
+                    "CXXFLAGS": "-g"
+                }
+            },
+            "group": "build",
+            "dependsOn": [
+                "configure_libspectrum"
+            ]
+        },
+        {
+            "label": "build_debug",
+            "command": "make",
+            "type": "shell",
+            "args": [],
+            "problemMatcher": {
+                "base": "$gcc"
+            },
+            "options": {
+                "env": {
+                    "CFLAGS": "-g",
+                    "CXXFLAGS": "-g"
+                }
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "build_release",
+            "command": "make",
+            "type": "shell",
+            "args": [],
+            "problemMatcher": {
+                "base": "$gcc"
+            },
+            "options": {
+                "env": {
+                    "CFLAGS": "-g",
+                    "CXXFLAGS": "-g"
+                }
+            },
+            "group": "build"
+        },
+        {
+            "label": "clean",
+            "command": "make",
+            "type": "shell",
+            "args": [
+                "clean"
+            ],
+            "problemMatcher": {
+                "base": "$gcc"
+            },
+            "group": "build"
+        },
+        {
+            "label": "autoreconf",
+            "command": "autoreconf",
+            "type": "shell",
+            "args": [
+                "--install",
+                "--force"
+            ],
+            "problemMatcher": [],
+            "group": "none"
+        },
+        {
+            "label": "configure_debug",
+            "command": "./configure",
+            "type": "shell",
+            "args": [
+                "--prefix",
+                "/${command:torizon.getAppName}",
+                "--enable-debug",
+                "--host",
+                "${command:torizon.ccpp.getHostTriplet}"
+            ],
+            "problemMatcher": [],
+            "options": {
+                "env": {
+                    "PKG_CONFIG_PATH": "${env:PKG_CONFIG_PATH}:${workspaceFolder}/lib/pkgconfig"
+                }
+            },
+            "group": "none",
+            "dependsOn": [
+                "autoreconf",
+                "build_libspectrum"
+            ]
+        },
+        {
+            "label": "configure_release",
+            "command": "./configure",
+            "type": "shell",
+            "args": [
+                "--prefix",
+                "/${command:torizon.getAppName}",
+                "--host",
+                "${command:torizon.ccpp.getHostTriplet}"
+            ],
+            "problemMatcher": [],
+            "group": "none",
+            "dependsOn": [
+                "autoreconf",
+                "build_libspectrum"
+            ]
+        },
+        {
+            "detail": "deploy application to work folder",
+            "label": "deploy",
+            "command": "make",
+            "args": [
+                "install"
+            ],
+            "type": "shell",
+            "options": {
+                "env": {
+                    "DESTDIR": "${workspaceFolder}/${config:torizon.appfolder}/work"
+                }
+            },
+            "group": "none",
+            "dependsOn": [
+                "deploy_libspectrum"
+            ]
+        },
+        {
+            "detail": "deploy libspectrum to work folder",
+            "label": "deploy_libspectrum",
+            "command": "install",
+            "args": [
+                "-D",
+                "-t",
+                "${workspaceFolder}/${config:torizon.appfolder}/work/${command:torizon.getAppName}/lib",
+                "lib/libspectrum.so.*"
+            ],
+            "type": "shell",
+            "group": "none"
+        }
+    ],
+    "options": {
+        "env": {
+            "TORIZON_PROP_ARG": "ARG SSHUSERNAME=#%application.username%#\n"
+        }
+    }
+}
